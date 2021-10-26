@@ -2,7 +2,7 @@ clear all;
 close all;
 
 %% Specify simulation type
-flag = 3;
+flag = 2;
 % 1 = simple simulation with basic parameter values for 6h
 % 2 = simple simulation with basic parameter values for 72h
 % 3 = figure out sensitivity analysis
@@ -54,7 +54,7 @@ switch flag
 
         % simulate for 72h
         sim_length  = 72*60;  % minutes
-        [T, Y]      = main_ode([0 sim_length], y0, sp, p); % run ODES
+        [T, Y]      = main_ode([0 sim_length], y0, sp, p0); % run ODES
 
         % calculate maximum concentrations of each species
         cmax_c_x    = max(Y(:, sp.c_x));
