@@ -6,63 +6,35 @@ colorblind_colors;
 
 %% Assign molecular species names to index values
 
-sp.c_x     = 1;     % extracellular nanoparticle-mRNA complex (pg/cell)
-sp.c_e     = 2;     % endosomal nanoparticle-mRNA complex concentration (pg/cell)
-sp.c_c     = 3;     % cytosolic nanoparticle-mRNA complex concentration (pg/cell)
-sp.m_c      = 4;     % cytosolic free mRNA number (#/cell)
-sp.p_c      = 5;     % cytosolic protein number (#/cell)
+sp.c_x	= 1;     % extracellular nanoparticle-mRNA complex (pg/cell)
+sp.c_e	= 2;     % endosomal nanoparticle-mRNA complex concentration (pg/cell)
+sp.c_c  = 3;     % cytosolic nanoparticle-mRNA complex concentration (pg/cell)
+sp.m_c	= 4;     % cytosolic free mRNA number (#/cell)
+sp.p_c	= 5;     % cytosolic protein number (#/cell)
 
 %% Initial conditions
 
 % initialize all species to 0
-y0 = zeros(length(fields(sp)), 1);
+y0  = zeros(length(fields(sp)), 1);
 
-y0(sp.c_x)     = 620;  % initialize extracellular nanoparticle amount to 620 pg/cell
+y0(sp.c_x)  = 620;  % initialize extracellular nanoparticle amount to 620 pg/cell
 
 %% Parameters - specify base values
 
-% extracellular degradation rate constant for nm_x 
-pbae_t_nps  = [4.4 5.1 1.2 3.6 6.1 5.3 5.5 6.5 1.6 4.6 3.9];    % From ref (1), half-lives (1/h) of several PBAE NPs
-t_np        = median(pbae_t_nps) * 60;  % Find median half-life and convert to minutes
-p.k_deg_x     = log(2) / t_np;        % Convert half-life to degradation rate constant (2.5e-3)  
-
-% internalization rate constant for c_x
-p.k_int       = 6e-3;     % min^-1. From ref (1), k_bind_uptake = 5-7e-3 min^-1
-
-% lysosomal degradation rate constant for c_e
-p.k_lys       = 1.5e-2;	% min^-1. From ref (1), k_deg_vesicle = 1-2e-2 min^-1
-
-% endosomal escape rate constant for c_e
-p.k_escape    = 1e-3;     % min^-1. From ref (1), k_escape highly variable: 1e-2 - 1e-5 min^-1
-
-% unpackaging/degradation rate constant for c_c (release mRNA, degrade np)
-p.k_deg_np	= 1e-2;     % min^-1. From ref (1), k_unpack = 1e-2 - 5e-1 min^-1
-
-% degradation rate constant for m_c
-t_m         = 9 * 60;           % min. From ref (2), median mRNA half-life = 9h
-p.k_deg_m 	= log(2) / t_m;     % convert half-life to degradation rate constant (~1e-3)
-%p.k_deg_m     = .062 / 60;        % From ref (3b), gamma = 0.062/h
-
-% translation/expression rate constant for p_c
-%p.k_expr      = 1e-2;     % min^-1 . From ref (3a), k_protein = translation rate of GFP mRNA from plasmid
-p.k_expr      = 170 / 60; % min^-1. From ref (3b), k_TL = 170/h...really depends how much mRNA gets in...
-
-% degradation rate constant for p_c
-t_p         = 46 * 60;          % min. From ref (2), median protein half-life = 46h
-p.k_deg_p     = log(2) / t_p;     % min^-1. convert half-life to degradation rate constant (~2.5e-4 min^-1)
-%p.k_deg_p     = .056 / 60;        % From ref (3b), gamma = 0.056/h
+% import parameters file
+parameters;
 
 %% SIMULATION 1
 
 % simulate for 72h
-[T, Y] = main_ode([0 72*60], y0, sp, p);
+[T, Y]      = main_ode([0 72*60], y0, sp, p);
 
 % calculate maximum concentrations of each species
-cmax_c_x = max(Y(:, sp.c_x));
-cmax_c_e = max(Y(:, sp.c_e));
-cmax_c_c = max(Y(:, sp.c_c));
-cmax_m_c = max(Y(:, sp.m_c));
-cmax_p_c = max(Y(:, sp.p_c));    % max protein conc is a logical thing to look at for sensitivity analysis
+cmax_c_x    = max(Y(:, sp.c_x));
+cmax_c_e    = max(Y(:, sp.c_e));
+cmax_c_c    = max(Y(:, sp.c_c));
+cmax_m_c    = max(Y(:, sp.m_c));
+cmax_p_c    = max(Y(:, sp.p_c));    % max protein conc is a logical thing to look at for sensitivity analysis
 
 % create figure for simulation 1
 figure;
