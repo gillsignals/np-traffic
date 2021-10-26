@@ -3,33 +3,33 @@
 % extracellular degradation rate constant for nm_x 
 pbae_t_nps  = [4.4 5.1 1.2 3.6 6.1 5.3 5.5 6.5 1.6 4.6 3.9];    % From ref (1), half-lives (1/h) of several PBAE NPs
 t_np        = median(pbae_t_nps) * 60;  % Find median half-life and convert to minutes
-k_deg_x     = log(2) / t_np;        % Convert half-life to degradation rate constant (2.5e-3)  
+p.k_deg_x     = log(2) / t_np;        % Convert half-life to degradation rate constant (2.5e-3)  
 
 % internalization rate constant for nm_x
-k_int       = 6e-3;     % min^-1. From ref (2), k_bind_uptake = 5-7e-3 min^-1
+p.k_int       = 6e-3;     % min^-1. From ref (2), k_bind_uptake = 5-7e-3 min^-1
 
 % lysosomal degradation rate constant for nm_e
-k_lys       = 1.5e-2;	% min^-1. From ref (2), k_deg_vesicle = 1-2e-2 min^-1
+p.k_lys       = 1.5e-2;	% min^-1. From ref (2), k_deg_vesicle = 1-2e-2 min^-1
 
 % endosomal escape rate constant for nm_e
-k_escape    = 1e-3;     % min^-1. From ref (2), k_escape highly variable: 1e-2 - 1e-5 min^-1
+p.k_escape    = 1e-3;     % min^-1. From ref (2), k_escape highly variable: 1e-2 - 1e-5 min^-1
 
 % unpackaging/degradation rate constant for nm_c (release mRNA, degrade np)
-k_deg_np	= 1e-2;     % min^-1. From ref (2), k_unpack = 1e-2 - 5e-1 min^-1
+p.k_deg_np	= 1e-2;     % min^-1. From ref (2), k_unpack = 1e-2 - 5e-1 min^-1
 
 % degradation rate constant for m_c
 t_m         = 9 * 60;           % min. From ref (3), median mRNA half-life = 9h
-k_deg_m 	= log(2) / t_m;     % convert half-life to degradation rate constant (~1e-3)
-%k_deg_m     = .062 / 60;        % From ref (4b), gamma = 0.062/h
+p.k_deg_m 	= log(2) / t_m;     % convert half-life to degradation rate constant (~1e-3)
+%p.k_deg_m     = .062 / 60;        % From ref (4b), gamma = 0.062/h
 
 % translation/expression rate constant for p_c
-%k_expr      = 1e-2;     % min^-1 . From ref (4a), k_protein = translation rate of GFP mRNA from plasmid
-k_expr      = 170 / 60; % min^-1. From ref (4b), k_TL = 170/h...really depends how much mRNA gets in...
+%p.k_expr      = 1e-2;     % min^-1 . From ref (4a), k_protein = translation rate of GFP mRNA from plasmid
+p.k_expr      = 170 / 60; % min^-1. From ref (4b), k_TL = 170/h...really depends how much mRNA gets in...
 
 % degradation rate constant for p_c
 t_p         = 46 * 60;          % min. From ref (3), median protein half-life = 46h
-k_deg_p     = log(2) / t_p;     % min^-1. convert half-life to degradation rate constant (~2.5e-4 min^-1)
-%k_deg_p     = .056 / 60;        % From ref (4b), gamma = 0.056/h
+p.k_deg_p     = log(2) / t_p;     % min^-1. convert half-life to degradation rate constant (~2.5e-4 min^-1)
+%o,k_deg_p     = .056 / 60;        % From ref (4b), gamma = 0.056/h
 
 
 %% Citations for initial parameter values
