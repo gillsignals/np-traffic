@@ -47,12 +47,12 @@ switch flag
         ylabel("P_c (#/cell)")
 
         ax6 = subplot(3,2,6);
-        plot(ax6, T / 60, Y(:, sp.c_x) / cmax_c_x, 'LineWidth', 2, 'Color', colors(cb.black))
+        plot(ax6, T / 60, Y(:, sp.c_x) / cmax.c_x, 'LineWidth', 2, 'Color', colors(cb.black))
         hold on;
-        plot(ax6, T / 60, Y(:, sp.c_e) / cmax_c_e, 'LineWidth', 2, 'Color', colors(cb.red))
-        plot(ax6, T / 60, Y(:, sp.c_c) / cmax_c_c, 'LineWidth', 2, 'Color', colors(cb.skyblue))
-        plot(ax6, T / 60, Y(:, sp.m_c) / cmax_m_c, 'LineWidth', 2, 'Color', colors(cb.orange))
-        plot(ax6, T / 60, Y(:, sp.p_c) / cmax_p_c, 'LineWidth', 2, 'Color', colors(cb.green))
+        plot(ax6, T / 60, Y(:, sp.c_e) / cmax.c_e, 'LineWidth', 2, 'Color', colors(cb.red))
+        plot(ax6, T / 60, Y(:, sp.c_c) / cmax.c_c, 'LineWidth', 2, 'Color', colors(cb.skyblue))
+        plot(ax6, T / 60, Y(:, sp.m_c) / cmax.m_c, 'LineWidth', 2, 'Color', colors(cb.orange))
+        plot(ax6, T / 60, Y(:, sp.p_c) / cmax.p_c, 'LineWidth', 2, 'Color', colors(cb.green))
         hold off;
         title("Combined scaled time course")
         xlabel("Time (h)")

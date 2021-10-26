@@ -1,4 +1,4 @@
-function [T, Y] = main_ode(tspan, y0, sp, p)
+function [T, Y, cmax] = main_ode(tspan, y0, sp, p)
 
 % MAIN_ODE [T,Y] = main_ode(tspan, y0, p)
 % Solves the system of ODEs specified in equations.m based on parameter values in driver.m.
@@ -16,6 +16,7 @@ function [T, Y] = main_ode(tspan, y0, sp, p)
 %   Y = matrix of concentration values for each molecule species returned by ODE solver. Each row i is
 %   a time point corresponding to the ith element in T. Each column j is a molecular species corresponding
 %   to the jth species in sp. 
+%   cmax = maximum concentration of each species
 
 
 % Set ODE solver options
@@ -31,7 +32,13 @@ options = odeset('AbsTol', 1e-12, 'RelTol', 1e-8, 'NonNegative', 1:length(fields
 % InitialStep = upper bound of initial time step size tried by the ODE solver
 
 % Run the basic ODE solver on eqns in equations.m
-[T,Y] = ode45(@equations, tspan, y0, options, sp, p);
+[T,Y]       = ode45(@equations, tspan, y0, options, sp, p);
 
+
+cmax.c_x    = max(Y(:, sp.c_x));
+cmax.c_e    = max(Y(:, sp.c_e));
+cmax.c_c    = max(Y(:, sp.c_c));
+cmax.m_c    = max(Y(:, sp.m_c));
+cmax.p_c    = max(Y(:, sp.p_c));    % max protein conc is a logical thing to look at for sensitivity analysis
 
 return;
