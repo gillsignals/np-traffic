@@ -34,11 +34,12 @@ options = odeset('AbsTol', 1e-12, 'RelTol', 1e-8, 'NonNegative', 1:length(fields
 % Run the basic ODE solver on eqns in equations.m
 [T,Y]       = ode45(@equations, tspan, y0, options, sp, p);
 
+% extract maximum value for each species and its index
+[cmax.c_x cmax_ind.c_x]     = max(Y(:, sp.c_x));
+[cmax.c_e cmax_ind.c_e]     = max(Y(:, sp.c_e));
+[cmax.c_c cmax_ind.c_c]     = max(Y(:, sp.c_c));
+[cmax.m_c cmax_ind.m_c]     = max(Y(:, sp.m_c));
+[cmax.p_c cmax_ind.p_c]     = max(Y(:, sp.p_c));
 
-cmax.c_x    = max(Y(:, sp.c_x));
-cmax.c_e    = max(Y(:, sp.c_e));
-cmax.c_c    = max(Y(:, sp.c_c));
-cmax.m_c    = max(Y(:, sp.m_c));
-cmax.p_c    = max(Y(:, sp.p_c));    % max protein conc is a logical thing to look at for sensitivity analysis
 
 return;
