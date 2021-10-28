@@ -5,7 +5,7 @@ close all;
 flag = 3;
 % 1 = simple simulation with basic parameter values for 6h
 % 2 = simple simulation with basic parameter values for 72h
-% 3 = figure out sensitivity analysis
+% 3 = local sensitivity analysis of max protein conc to 10% change
 
 %% Import colorblind-friendly colors for plotting
 colorblind_colors;
@@ -51,7 +51,7 @@ switch flag
         
         figures;
         
-    %% SIMULATION 3 - figure out local sensitivity analysis
+    %% SIMULATION 3 - local sensitivity analysis of max protein amount to 10% change
     case 3
         
         delta = 0.1;  % test sensitivity to a 10% increase in parameter value
@@ -63,12 +63,13 @@ switch flag
         [T0, Y0, cmax0] = main_ode([0 sim_length], y0, sp, p0);
         p_c0    = cmax0.p_c;    % max protein amount
         
-        for i=1:length(p0_names)
+        % perform sensitivity analysis for all parameters
+        for i = 1:length(p0_names)
             
             p = p0;     % set initial parameter values
             p.(p0_names{i}) = p0.(p0_names{i}) * (1 + delta);	% increase ith parameter value by fraction delta
             [T1, Y1, cmax1] = main_ode([0 sim_length], y0, sp, p);   % run ODEs
-            p_c = cmax1.p_c;
+            p_c = cmax1.p_c;    % new max protein amount
 
 
             sens_rel_not_norm   = (p_c - p_c0)/(p_c0);  % relative sensitivity (not normalized to parameter value)
@@ -77,8 +78,7 @@ switch flag
 
         end
         
-        sens_rel_norm
+        figures;
         
-        %figures;
-        
+                
 end
