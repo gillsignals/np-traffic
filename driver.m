@@ -2,7 +2,7 @@ clear all;
 close all;
 
 %% Specify simulation type
-flag = 1;
+flag = 3;
 % 1 = simple simulation with basic parameter values for 6h
 % 2 = simple simulation with basic parameter values for 72h
 % 3 = figure out sensitivity analysis
@@ -37,7 +37,7 @@ switch flag
     case 1
         
         % simulate for 6h
-        sim_length  = 6*60;  % minutes
+        sim_length  = 6*60;  % minutes simulated
         [T, Y, cmax]      = main_ode([0 sim_length], y0, sp, p0);  % run ODEs
         
         figures;
@@ -46,13 +46,39 @@ switch flag
     case 2
 
         % simulate for 72h
-        sim_length  = 72*60;  % minutes
-        [T, Y, cmax]      = main_ode([0 sim_length], y0, sp, p0); % run ODES
+        sim_length  = 72*60;  % minutes simulated
+        [T, Y, cmax]      = main_ode([0 sim_length], y0, sp, p0);   % run ODES
         
         figures;
         
     %% SIMULATION 3 - figure out local sensitivity analysis
     case 3
         
+        delta = 0.1;  % test sensitivity to a 10% increase in parameter value
+        sim_length  = 72*60;  % minutes simulated
+        
+        p0_names = fieldnames(p0);  % extract parameter names
+        
+        % simulate base case
+        [T0, Y0, cmax0] = main_ode([0 sim_length], y0, sp, p0);
+        p_c0    = cmax0.p_c;    % max protein amount
+        
+        for i=1:length(p0_names)
+            
+            p = p0;     % set initial parameter values
+            p.(p0_names{i}) = p0.(p0_names{i}) * (1 + delta);	% increase ith parameter value by fraction delta
+            [T1, Y1, cmax1] = main_ode([0 sim_length], y0, sp, p);   % run ODEs
+            p_c = cmax1.p_c;
+
+
+            sens_rel_not_norm   = (p_c - p_c0)/(p_c0);  % relative sensitivity (not normalized to parameter value)
+            param_change	= (p.(p0_names{i}) - p0.(p0_names{i})) / p.(p0_names{i});   % magnitude of parameter change
+            sens_rel_norm(i)   = sens_rel_not_norm / param_change;     % normalized relative sensitivity
+
+        end
+        
+        sens_rel_norm
+        
+        %figures;
         
 end
