@@ -13,3 +13,5 @@ cb.pink = 8;
 
 % assign colors in order above (black, skyblue, orange, green, red, darkblue, yellow, pink
 colors = ["#000000", "#56B4E9", "#E69F00", "#009E73", "#D55E00", "#0072B2", "#F0E442", "#CC79A7"];
+
+cb_map = [0 0 0; 0.3 0.7 0.9; 0.9 0.6 0; 0 0.6 0.5; 0.8 0.4 0; 0 0.4 0.7; 0.9 0.9 0.3; 0.8 0.5 0.7;];
