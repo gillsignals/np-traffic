@@ -148,4 +148,38 @@ switch flag     % specified in driver
         xlabel("Sensitivity") % % change in max(P_c) per % change in parameter
         title("Sensitivity of max(P_c) to 10% increase in parameter")
         yticklabels(names_array_sorted)
+        
+	%% CASE 4 = local sensitivity analysis of max protein conc to multiple % changes
+    
+    case 4
+        
+        % specify parameter labels in initial order
+        names_array = {'k_{deg_x}', 'k_{int}', 'k_{lys}', 'k_{escape}', ...
+            'k_{deg_{np}}', 'k_{deg_m}', 'k_{expr}', 'k_{deg_p}'};
+        
+        % find indices to sort sensitivity vector in descending order
+        [~, ind] = sort(sens_rel_norm, 'ascend');        
+             
+        % sort parameter names
+        names_array_sorted = names_array(ind);
+        
+        % create bar plot object
+        b = barh(combined_sens', 'FaceColor', 'flat');
+        
+        % recolor bars with colorblind scheme
+        for i = 1:size(combined_sens, 1)
+            b(i).CData = repmat(cb_map(i,:), [length(p0_names) 1]);    
+        end
+        
+        legend(b, string(test_deltas * 100) + "%", "Location", "southeast")
+            
+        ylabel("Parameter")
+        xlabel("Sensitivity") % % change in max(P_c) per % change in parameter
+        title("Sensitivity of max(P_c) to different increases in parameter")
+        %yticklabels(b, names_array_sorted)
+        
+        figure; b;
+        
+        
+        
 end
