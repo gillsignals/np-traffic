@@ -1,7 +1,9 @@
 switch flag     % specified in driver
     % 1 = simple simulation with basic parameter values for 6h
     % 2 = simple simulation with basic parameter values for 72h
-    % 3 = local sensitivity analysis of max protein conc to 10% change
+    % 3 = local univariate sensitivity analysis of max protein amount to 10% change
+    % 4 = local sensitivity analysis of max protein amount to multiple % changes
+    % 5 = global univariate sensitivity analysis of max protein amount
     
     %% CASE 1 = simple simulation with basic parameter values for 6h
     case 1
@@ -180,6 +182,6 @@ switch flag     % specified in driver
         
         figure; b;
         
-        
+        %% CASE 5 = global univariate sensitivity analysis of max protein conc
         
 end
