@@ -181,6 +181,39 @@ switch flag     % specified in driver
         %yticklabels(b, names_array_sorted)
 
         
-        %% CASE 5 = global univariate sensitivity analysis of max protein conc
+    %% CASE 5 = global univariate sensitivity analysis of max protein conc
+    
+    case 5
+        
+        % specify parameter labels in initial order
+        names_array = {'k_{deg_x}', 'k_{int}', 'k_{lys}', 'k_{escape}', ...
+            'k_{deg_{np}}', 'k_{deg_m}', 'k_{expr}', 'k_{deg_p}'};
+        
+        % specify output labels and units
+        outputs_array = {'C_{max}(P_c)', 'T_{max}(P_c)'};
+        out_units = {'(#/cell)', '(min)'};
+        
+        % for each output, plot *non-normalized* global univariate sensitivity analysis for each param 
+        for y = 1:n_outs
+            figure;     % separate figure for each output variable
+            sgtitle("Global univariate sensitivity analysis of " + outputs_array(y))
+            for j = 1:n_params
+                subplot(4,2,j);
+                plot(exps, (j, :, y))
+                xlim([-3 3]);
+                xlabel("Log fold change in parameter")
+                ylabel(outputs_array{y})
+                title(names_array{j})
+            end
+        end
+        
+        %% TO DO: NORMALIZED SENSITIVITIES
+
+        
+        
+        
+        
+        
+        
         
 end

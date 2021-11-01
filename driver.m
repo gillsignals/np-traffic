@@ -3,7 +3,7 @@ close all;
 
 %% Specify simulation type
 
-flag = 4;
+flag = 5;
 % 1 = simple simulation with basic parameter values for 6h
 % 2 = simple simulation with basic parameter values for 72h
 % 3 = local sensitivity analysis of max protein amount to 10% change
@@ -42,8 +42,8 @@ switch flag
         fprintf('Simulating scenario %d...\n', flag);
         
         % simulate for 6h
-        sim_length  = 6*60;  % minutes simulated
-        [T, Y, cmax, tmax]      = main_ode([0 sim_length], y0, sp, p0);  % run ODEs
+        sim_mins  = 6*60;  % minutes simulated
+        [T, Y, cmax, tmax]      = main_ode([0 sim_mins], y0, sp, p0);  % run ODEs
         
         % create figures
         fprintf('Creating figures...\n');
@@ -61,8 +61,9 @@ switch flag
         fprintf('Simulating scenario %d...\n', flag);
         
         % simulate for 72h
-        sim_length  = 72*60;  % minutes simulated
-        [T, Y, cmax, tmax]      = main_ode([0 sim_length], y0, sp, p0);   % run ODES
+        sim_days    = 3;	% days simulated 
+        sim_mins    = sim_days * 24 *60;	% minutes simulated
+        [T, Y, cmax, tmax]      = main_ode([0 sim_mins], y0, sp, p0);   % run ODES
         
         % create figures
         fprintf('Creating figures...\n');
@@ -81,13 +82,15 @@ switch flag
         
         % set variables
         delta = 0.1;  % test sensitivity to a 10% increase in parameter value
-        sim_length  = 72*60;  % minutes simulated
+        sim_days    = 3;	% days simulated 
+        sim_mins    = sim_days * 24 *60;	% minutes simulated
         p0_names = fieldnames(p0);  % extract parameter names
+        sens_rel_norm   = zeros(length(p0_names), 1);
         
         % simulate base case
-        [T0, Y0, cmax0] = main_ode([0 sim_length], y0, sp, p0);
+        [T0, Y0, cmax0, tmax0] = main_ode([0 sim_mins], y0, sp, p0);
         p_c0    = cmax0.p_c;    % max protein amount
-        t_p_c0 = tmax0.p_c;
+        t_p_c0 = tmax0.p_c;     % time of max protein amount
         
         % perform sensitivity analysis for all parameters
         for i = 1:length(p0_names)
@@ -97,7 +100,7 @@ switch flag
             % simulate test case
             p = p0;     % set initial parameter values
             p.(p0_names{i}) = p0.(p0_names{i}) * (1 + delta);	% increase ith parameter value by fraction delta
-            [T1, Y1, cmax1, tmax1] = main_ode([0 sim_length], y0, sp, p);   % run ODEs
+            [T1, Y1, cmax1, tmax1] = main_ode([0 sim_mins], y0, sp, p);   % run ODEs
             p_c = cmax1.p_c;    % new max protein amount
             t_p_c = tmax1.p_c;
 
@@ -125,11 +128,14 @@ switch flag
         
         % set variables
         test_deltas     = [.01 .05 .1 .25 .5 1];    % define deltas (% change in parameter) to test
-        sim_length  = 72*60;                        % minutes simulated
+        sim_days    = 3;	% days simulated 
+        sim_mins    = sim_days * 24 *60;	% minutes simulated
         p0_names    = fieldnames(p0);               % extract parameter names
+        sens_rel_norm   = zeros(length(p0_names), 1);
+        combined_sens   = zeros(length(test_deltas), length(p0_names));
         
         % simulate base case
-        [T0, Y0, cmax0, tmax0]     = main_ode([0 sim_length], y0, sp, p0);
+        [T0, Y0, cmax0, tmax0]     = main_ode([0 sim_mins], y0, sp, p0);
         p_c0    = cmax0.p_c;    % max protein amount in base case
         t_p_c0  = tmax0.p_c;    % time when max protein amount is reached
         
@@ -144,7 +150,7 @@ switch flag
                 % simulate test case
                 p = p0;     % set initial parameter values
                 p.(p0_names{i}) = p0.(p0_names{i}) * (1 + delta);	% increase ith parameter value by fraction delta
-                [T1, Y1, cmax1, tmax1] = main_ode([0 sim_length], y0, sp, p);   % run ODEs
+                [T1, Y1, cmax1, tmax1] = main_ode([0 sim_mins], y0, sp, p);   % run ODEs
                 p_c = cmax1.p_c;    % new max protein amount
                 t_p_c = tmax1.p_c;  % new time when max protein amount reached
 
@@ -175,31 +181,81 @@ switch flag
     %% SIMULATION 5 - global univariate sensitivity analysis of max protein amount
     case 5
         
-        % range of exponents to scan for each parameter
-        exps = -3:3;
-        
-        % output features to analyze
-        outs = ["C_max", "T_max"];
+        % announce program start
+        tic
+        fprintf('Simulating scenario %d...\n', flag);
         
         % define variables
-        p0_names = fieldnames(p0);  % extract parameter names
-        n_params = length(p0_names);    % number of parameters to test
-        n_exps = length(exps);          % number of exponents per parameter
-        n_outs = length(outs);       % number of output features to analyze
-        
-        n_outs = 3; 
-        %# initialize output matrix m   % format m(j,x,y) = m(length(p0_names), x, num_outputs)
-        
-        m = zeros(n_params, n_exps);
-        
-        for i = 1:n_outs
-            m(:, :, i) = zeros(n_params, n_exps);
+        exps = -3:3;                        % range of exponents to scan for each parameter
+        outvars = ["Cmax_p", "Tmax_p"];     % output features to analyze
+        sim_days = 15;                      % days simulated - (req'd length to reach Tmax in all conditions)
+        sim_mins  = sim_days * 24 * 60;     % minutes simulated
+        p0_names = fieldnames(p0);          % extract parameter names
+        n_params = length(p0_names);        % number of parameters to test
+        n_exps = length(exps);              % number of exponents per parameter
+        n_outs = length(outvars);           % number of output features to analyze    
+       
+        % initialize empty output matrix m
+        % format m(j,x,y) = m(parameter, exponent, output)        
+        for y = 1:n_outs
+            m(:, :, y) = zeros(n_params, n_exps);
         end
         
+        % run sensitivity analysis for every parameter across a log scale range
+        for j = 1:1:n_params
+            
+            fprintf('Running simulation %d of %d', j, n_params)
         
-        % run analyses
-        %for j = 1:1:n_params
-            %
-            %
+            p = p0;     % set initial parameter values
+            
+            % run base case
+            [T0, Y0, cmax0, tmax0]     = main_ode([0 sim_mins], y0, sp, p0);
+            outs0	= [cmax0.p_c, tmax0.p_c];    % Cmax and Tmax of cytosolic protein (P_c)
+            
+            for x = 1:n_exps
+                p.(p0_names{j}) = p0.(p0_names{j}) * 10^exps(x);    % scale param j by 10^exps(x)
+                [T1, Y1, cmax, tmax] = main_ode([0 sim_mins], y0, sp, p);   % run ODEs
+                outs = [cmax.p_c, tmax.p_c];    % return Cmax and Tmax of cytosolic protein (p_c)
+                
+                % store sensitivity of each output variable in m
+                for y = 1:n_outs
+                   m(j, x, y) = outs(y); 
+                end
+                
+                fprintf('.')
+            end
+           
+            fprintf('\n')
+            
+        end
+        
+        %% TO DO: calculate relative sensitivity, but do it inside the loop
+        % sensitivity relative to base case
+        % normalized relative sensitivity
+        
+        % CODE COPYPASTA FROM 4
+        % calculate sensitivity
+        %        sens_rel_not_norm   = (p_c - p_c0)/(p_c0);  % relative sensitivity (not normalized to parameter value)
+        %        param_change	= (p.(p0_names{i}) - p0.(p0_names{i})) / p.(p0_names{i});   % magnitude of parameter change
+        %        sens_rel_norm(i)   = sens_rel_not_norm / param_change;     % normalized relative sensitivity
+        
+        % CODE SANDBOX FOR CALCULATING SENSITIVITIES
+        % normalize output matrix to base case
+        %sens_not_norm = m;
+        %for y = 1:n_outs
+        %    sens_not_norm(:, :, y) = ( m(:, :, y) - outs0(y) ) ./ outs0(y);
         %end
+        
+        % create figures
+        fprintf('Creating figures...\n');
+        figures;
+        
+        % announce program end
+        fprintf('Scenario %d complete!\n', flag);
+        toc
+        
+        % show warning if any sim hasn't reached Tmax
+        if ismember(sim_mins, m)
+            warning('Time is too short to reach Tmax - increase simulation length.')
+        end
 end
