@@ -42,10 +42,10 @@ options = odeset('AbsTol', 1e-12, 'RelTol', 1e-8, 'NonNegative', 1:length(fields
 [cmax.p_c cmax_ind.p_c]     = max(Y(:, sp.p_c));
 
 % find time when maximum value is reached for each species
-tmax.c_x = Y(cmax_ind.c_x, sp.c_x);
-tmax.c_e = Y(cmax_ind.c_e, sp.c_e);
-tmax.c_c = Y(cmax_ind.c_c, sp.c_c);
-tmax.m_c = Y(cmax_ind.m_c, sp.m_c);
-tmax.p_c = Y(cmax_ind.p_c, sp.p_c);
+tmax.c_x = T(cmax_ind.c_x);
+tmax.c_e = T(cmax_ind.c_e);
+tmax.c_c = T(cmax_ind.c_c);
+tmax.m_c = T(cmax_ind.m_c);
+tmax.p_c = T(cmax_ind.p_c);
 
 return;
