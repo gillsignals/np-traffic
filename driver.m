@@ -2,10 +2,12 @@ clear all;
 close all;
 
 %% Specify simulation type
+
 flag = 4;
 % 1 = simple simulation with basic parameter values for 6h
 % 2 = simple simulation with basic parameter values for 72h
-% 3 = local sensitivity analysis of max protein conc to 10% change
+% 3 = local sensitivity analysis of max protein amount to 10% change
+% 4 = local sensitivity analysis of max protein amount to various % change
 
 %% Import colorblind-friendly colors for plotting
 colorblind_colors;
@@ -36,27 +38,51 @@ switch flag
     %% SIMULATION 1 - initial parameter values, 6h
     case 1
         
+        % announce program start
+        tic
+        fprintf('Simulating scenario %d...\n', flag);
+        
         % simulate for 6h
         sim_length  = 6*60;  % minutes simulated
         [T, Y, cmax]      = main_ode([0 sim_length], y0, sp, p0);  % run ODEs
         
+        % create figures
+        fprintf('Creating figures...\n');
         figures;
+        
+        % announce program end
+        fprintf('Scenario %d complete!\n', flag);
+        toc
 
     %% SIMULATION 2 - initial parameter values, 72h
     case 2
 
+        % announce program start
+        tic
+        fprintf('Simulating scenario %d...\n', flag);
+        
         % simulate for 72h
         sim_length  = 72*60;  % minutes simulated
         [T, Y, cmax]      = main_ode([0 sim_length], y0, sp, p0);   % run ODES
         
+        % create figures
+        fprintf('Creating figures...\n');
         figures;
+        
+        % announce program end
+        fprintf('Scenario %d complete!\n', flag);
+        toc
         
     %% SIMULATION 3 - local sensitivity analysis of max protein amount to 10% change
     case 3
         
+        % announce program start
+        tic
+        fprintf('Simulating scenario %d...\n', flag);
+        
+        % set variables
         delta = 0.1;  % test sensitivity to a 10% increase in parameter value
         sim_length  = 72*60;  % minutes simulated
-        
         p0_names = fieldnames(p0);  % extract parameter names
         
         % simulate base case
@@ -66,46 +92,60 @@ switch flag
         % perform sensitivity analysis for all parameters
         for i = 1:length(p0_names)
             
+            fprintf('Analyzing parameter %s...\n', p0_names{i});
+            
+            % simulate test case
             p = p0;     % set initial parameter values
             p.(p0_names{i}) = p0.(p0_names{i}) * (1 + delta);	% increase ith parameter value by fraction delta
             [T1, Y1, cmax1] = main_ode([0 sim_length], y0, sp, p);   % run ODEs
             p_c = cmax1.p_c;    % new max protein amount
 
-
+            % calculate and store sensitivity
             sens_rel_not_norm   = (p_c - p_c0)/(p_c0);  % relative sensitivity (not normalized to parameter value)
             param_change	= (p.(p0_names{i}) - p0.(p0_names{i})) / p.(p0_names{i});   % magnitude of parameter change
             sens_rel_norm(i)   = sens_rel_not_norm / param_change;     % normalized relative sensitivity
 
         end
         
+        % create figures
+        fprintf('Creating figures...\n');
         figures;
         
-   %% SIMULATION 4 - local sensitivity analysis of max protein amount to 10% change
+        % announce program end
+        fprintf('Scenario %d complete!\n', flag);
+        toc
+        
+   %% SIMULATION 4 - local sensitivity analysis of max protein amount to various % change
     case 4
         
-        sim_length  = 72*60;  % minutes simulated
-        p0_names    = fieldnames(p0);  % extract parameter names
+        % announce program start
+        tic
+        fprintf('Simulating scenario %d...\n', flag);
+        
+        % set variables
+        test_deltas     = [.01 .05 .1 .25 .5 1];    % define deltas (% change in parameter) to test
+        sim_length  = 72*60;                        % minutes simulated
+        p0_names    = fieldnames(p0);               % extract parameter names
         
         % simulate base case
         [T0, Y0, cmax0]     = main_ode([0 sim_length], y0, sp, p0);
         p_c0    = cmax0.p_c;    % max protein amount in base case
         
-        % define deltas (% change in parameter) to test
-        test_deltas     = [.01 .05 .1 .25 .5 1];
-        
         % perform local univariate sensitivity analysis for each delta
         for j = 1:length(test_deltas)
            delta = test_deltas(j);
+           fprintf('Exploring %d percent increase...\n', delta*100);
            
            % perform sensitivity analysis for all parameters
             for i = 1:length(p0_names)
 
+                % simulate test case
                 p = p0;     % set initial parameter values
                 p.(p0_names{i}) = p0.(p0_names{i}) * (1 + delta);	% increase ith parameter value by fraction delta
                 [T1, Y1, cmax1] = main_ode([0 sim_length], y0, sp, p);   % run ODEs
                 p_c = cmax1.p_c;    % new max protein amount
 
-
+                % calculate sensitivity
                 sens_rel_not_norm   = (p_c - p_c0)/(p_c0);  % relative sensitivity (not normalized to parameter value)
                 param_change	= (p.(p0_names{i}) - p0.(p0_names{i})) / p.(p0_names{i});   % magnitude of parameter change
                 sens_rel_norm(i)   = sens_rel_not_norm / param_change;     % normalized relative sensitivity
@@ -121,9 +161,35 @@ switch flag
            
         end
         
-
-        
+        % create figures
+        fprintf('Creating figures...\n');
         figures;
         
-                     
+        % announce program end
+        fprintf('Scenario %d complete!\n', flag);
+        toc
+        
+    %% SIMULATION 5 - global univariate sensitivity analysis of max protein amount
+    case 5
+        
+        % range of exponents to scan for each parameter
+        exps = -3:3;
+        
+        % output features to analyze
+        outs = ["Cmax_p_c"];
+        
+        % define loop variables
+        n_params = length(p0_names);    % number of parameters to test
+        n_exps = length(exps);          % number of exponents per parameter
+        n_outputs = length(outs);       % number of output features to analyze
+        
+        
+        % run analyses
+        m = zeros(n_params, n_exps, n_outputs);
+        
+        %# initialize output matrix m   % format m(j,x,y) = m(length(p0_names), x, num_outputs)
+        for j = 1:1:n_params
+            %
+            %
+        end
 end
