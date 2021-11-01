@@ -1,4 +1,4 @@
-function [T, Y, cmax] = main_ode(tspan, y0, sp, p)
+function [T, Y, cmax, tmax] = main_ode(tspan, y0, sp, p)
 
 % MAIN_ODE [T,Y] = main_ode(tspan, y0, p)
 % Solves the system of ODEs specified in equations.m based on parameter values in driver.m.
@@ -41,5 +41,11 @@ options = odeset('AbsTol', 1e-12, 'RelTol', 1e-8, 'NonNegative', 1:length(fields
 [cmax.m_c cmax_ind.m_c]     = max(Y(:, sp.m_c));
 [cmax.p_c cmax_ind.p_c]     = max(Y(:, sp.p_c));
 
+% find time when maximum value is reached for each species
+tmax.c_x = Y(cmax_ind.c_x, sp.c_x);
+tmax.c_e = Y(cmax_ind.c_e, sp.c_e);
+tmax.c_c = Y(cmax_ind.c_c, sp.c_c);
+tmax.m_c = Y(cmax_ind.m_c, sp.m_c);
+tmax.p_c = Y(cmax_ind.p_c, sp.p_c);
 
 return;
