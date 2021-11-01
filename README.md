@@ -1,7 +1,11 @@
 # np-traffic
 MATLAB model of intracellular trafficking of nanoparticle-mRNA complexes. Written for Cellular Engineering final project.
 
-*To Run:* Download all files from repo. Open `driver.m`. Set the flag value to the desired scenario and run the program. All other files will be automatically called inside of the driver.
+## Running Instructions
+
+Clone the repo. Open `driver.m`. Set the flag value to the desired scenario and run the program. All other files will be automatically called inside of the driver.
+
+## Included files
 
 - `colorblind_colors.m` - Defines a color palette for plots that is colorblind-accessible.
 
