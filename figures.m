@@ -179,8 +179,7 @@ switch flag     % specified in driver
         xlabel("Sensitivity") % % change in max(P_c) per % change in parameter
         title("Sensitivity of max(P_c) to different increases in parameter")
         %yticklabels(b, names_array_sorted)
-        
-        figure; b;
+
         
         %% CASE 5 = global univariate sensitivity analysis of max protein conc
         
