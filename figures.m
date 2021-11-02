@@ -147,7 +147,7 @@ switch flag     % specified in driver
         figure;
         barh(sens_rel_norm(ind));
         ylabel("Parameter")
-        xlabel("Sensitivity") % % change in max(P_c) per % change in parameter
+        xlabel("Sensitivity") % % change in output per % change in parameter
         title("Sensitivity of max(P_c) to 10% increase in parameter")
         yticklabels(names_array_sorted)
         
@@ -178,7 +178,8 @@ switch flag     % specified in driver
         ylabel("Parameter")
         xlabel("Sensitivity") % % change in max(P_c) per % change in parameter
         title("Sensitivity of max(P_c) to different increases in parameter")
-        %yticklabels(b, names_array_sorted)
+        yticklabels(names_array)
+        set(gca,'FontSize',20)
 
         
     %% CASE 5 = global univariate sensitivity analysis of max protein conc
@@ -193,21 +194,20 @@ switch flag     % specified in driver
         outputs_array = {'C_{max}(P_c)', 'T_{max}(P_c)'};
         out_units = {'(#/cell)', '(min)'};
         
-        % for each output, plot *non-normalized* global univariate sensitivity analysis for each param 
+        % for each output, plot normalized global univariate sensitivity analysis for each param 
         for y = 1:n_outs
             figure;     % separate figure for each output variable
             sgtitle("Global univariate sensitivity analysis of " + outputs_array(y))
             for j = 1:n_params
                 subplot(4,2,j);
-                plot(exps, (j, :, y))
+                plot(exps, m(j, :, y))
                 xlim([-3 3]);
                 xlabel("Log fold change in parameter")
-                ylabel(outputs_array{y})
+                ylabel(outputs_array{y} + " " + out_units{y})
                 title(names_array{j})
             end
         end
         
-        %% TO DO: NORMALIZED SENSITIVITIES
 
         
         

@@ -3,7 +3,7 @@ close all;
 
 %% Specify simulation type
 
-flag = 5;
+flag = 4;
 % 1 = simple simulation with basic parameter values for 6h
 % 2 = simple simulation with basic parameter values for 72h
 % 3 = local sensitivity analysis of max protein amount to 10% change
@@ -188,7 +188,7 @@ switch flag
         % define variables
         exps = -3:3;                        % range of exponents to scan for each parameter
         outvars = ["Cmax_p", "Tmax_p"];     % output features to analyze
-        sim_days = 15;                      % days simulated - (req'd length to reach Tmax in all conditions)
+        sim_days = 15;                      % days simulated (15 req'd to reach Tmax in all conditions)
         sim_mins  = sim_days * 24 * 60;     % minutes simulated
         p0_names = fieldnames(p0);          % extract parameter names
         n_params = length(p0_names);        % number of parameters to test
@@ -196,10 +196,15 @@ switch flag
         n_outs = length(outvars);           % number of output features to analyze    
        
         % initialize empty output matrix m
-        % format m(j,x,y) = m(parameter, exponent, output)        
+        % format m(j,x,y) = m(parameter, exponent, output)
+        % m = matrix of relative sensitivities, not normalized to param change size
         for y = 1:n_outs
             m(:, :, y) = zeros(n_params, n_exps);
         end
+        
+        % initialize empty output matrix m_norm with same dimensions
+        % m_norm = matrix of relative sensitivities, normalized to size of parameter change
+        m_norm = m;
         
         % run sensitivity analysis for every parameter across a log scale range
         for j = 1:1:n_params
@@ -208,10 +213,6 @@ switch flag
         
             p = p0;     % set initial parameter values
             
-            % run base case
-            [T0, Y0, cmax0, tmax0]     = main_ode([0 sim_mins], y0, sp, p0);
-            outs0	= [cmax0.p_c, tmax0.p_c];    % Cmax and Tmax of cytosolic protein (P_c)
-            
             for x = 1:n_exps
                 p.(p0_names{j}) = p0.(p0_names{j}) * 10^exps(x);    % scale param j by 10^exps(x)
                 [T1, Y1, cmax, tmax] = main_ode([0 sim_mins], y0, sp, p);   % run ODEs
@@ -219,7 +220,7 @@ switch flag
                 
                 % store sensitivity of each output variable in m
                 for y = 1:n_outs
-                   m(j, x, y) = outs(y); 
+                    m(j, x, y) = outs(y);
                 end
                 
                 fprintf('.')
